@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Fornecedor {
+  id           String      @id @default(cuid())
+  nome         String
+  categoria    String
+  contato      String?
+  telefone     String?
+  email        String?
+  valorTotal   Float       @default(0)
+  observacoes  String?
+  pagamentos   Pagamento[]
+  criadoEm     DateTime    @default(now())
+  atualizadoEm DateTime    @updatedAt
+}
+
+model Pagamento {
+  id           String          @id @default(cuid())
+  fornecedorId String
+  fornecedor   Fornecedor      @relation(fields: [fornecedorId], references: [id], onDelete: Cascade)
+  descricao    String?
+  valor        Float
+  vencimento   DateTime
+  pagoEm       DateTime?
+  status       StatusPagamento @default(PENDENTE)
+  criadoEm     DateTime        @default(now())
+}
+
+model Tarefa {
+  id           String       @id @default(cuid())
+  titulo       String
+  categoria    String
+  vencimento   DateTime?
+  status       StatusTarefa @default(PENDENTE)
+  observacoes  String?
+  prioridade   Prioridade   @default(MEDIA)
+  criadoEm     DateTime     @default(now())
+  atualizadoEm DateTime     @updatedAt
+}
+
+enum StatusPagamento {
+  PENDENTE
+  PAGO
+  ATRASADO
+}
+
+enum StatusTarefa {
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDA
+}
+
+enum Prioridade {
+  BAIXA
+  MEDIA
+  ALTA
+}
